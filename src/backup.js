@@ -14,15 +14,18 @@ module.exports = async() => {
   const lastBackup = await getLastBackup()
   if(lastBackup) {
     console.log('Copy last backup...')
-    await rsync(['-ah', '--stats', lastBackup, destinationBackup])
+    await rsync(['-ah', '--stats', lastBackup + '/', destinationBackup])
   }
   const rsyncArgs = [
     '-e', 'ssh',
     '-ah',
     '--delete',
+    '--include', 'volumes/***',
+    '--include', 'app/***',
+    '--exclude', '*',
     '--rsync-path', 'sudo rsync',
     '--stats',
-    source,
+    source +'/',
     destinationBackup
   ]
   console.log('Sync remote...')
