@@ -13,6 +13,7 @@ module.exports = async() => {
   const destinationBackup = pathfs.resolve(destination, `backup-${time}`)
   const lastBackup = await getLastBackup()
   if(lastBackup) {
+    console.log('Copy last backup...')
     await rsync(['-ah', '--stats', lastBackup, destinationBackup])
   }
   const rsyncArgs = [
@@ -24,8 +25,10 @@ module.exports = async() => {
     source,
     destinationBackup
   ]
+  console.log('Sync remote...')
   let rsyncOutput = await rsync(rsyncArgs)
   await deleteBackupIfEmpty(destinationBackup)
+  console.log('Delete all backup...')
   const removedBackups = await deleteOldBackups()
   
   rsyncOutput += `
@@ -38,6 +41,7 @@ module.exports = async() => {
   rsyncOutput += `
     Command: ${rsyncArgs.join(' ')}
   `
+  console.log(rsyncOutput)
   await discord.send(discord.createEmbededReport(true, rsyncOutput))
 }
 
