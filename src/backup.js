@@ -11,9 +11,14 @@ module.exports = async() => {
   const date = dayjs()
   const time = date.format('YYYY-MM-DD-HH:mm:ss')
   const destinationBackup = pathfs.resolve(destination, `backup-${time}`)
+  const lastBackup = await getLastBackup()
+  if(lastBackup) {
+    await rsync(['-ah', '--stats', lastBackup, destinationBackup])
+  }
   const rsyncArgs = [
     '-e', 'ssh',
     '-ah',
+    '--delete',
     '--rsync-path', 'sudo rsync',
     '--stats',
     source,
@@ -47,6 +52,15 @@ async function deleteBackupIfEmpty(destinationBackup) {
 async function getAllBackup() {
   const { destination } = args
   return fse.readdir(destination)
+}
+async function getLastBackup() {
+  const { destination } = args
+  const allBackup = await getAllBackup()
+  const lastBackup = allBackup.pop()
+  if(lastBackup) {
+    return pathfs.resolve(destination, lastBackup)
+  }
+  return lastBackup
 }
 async function deleteOldBackups() {
   const {destination, nbBackup} = args
