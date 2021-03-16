@@ -7,16 +7,17 @@ program
   .requiredOption('-s, --source <path>', 'Path to the source directory')
   .requiredOption('-d, --destination <path>', 'Path to the destination directory', shouldPathExist)
   .requiredOption('-n, --nb-backup  <number>', 'Number of backup to keep', shouldBeNumber)
+  .option('--interval  <nbday>', 'how many time to wait to pull a backup', '4')
   .option('--discord-token  <token>', 'Bot token to send message to discord')
   .option('--discord-channel  <channelID>', 'Channel to send messages')
 program.parse(process.argv);
 
 const options = program.opts();
 
-const { source, destination, nbBackup, discordToken, discordChannel } = options
+const { source, destination, nbBackup, discordToken, discordChannel, interval } = options
 
 module.exports = {
-  source, destination, nbBackup, discordToken, discordChannel
+  source, destination, nbBackup, discordToken, discordChannel, interval: +interval
 }
 
 

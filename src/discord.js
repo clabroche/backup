@@ -13,7 +13,15 @@ class MyDiscord {
     return new Promise((res) => {
       client.on('ready', async() => {
         console.log(`Logged in as ${client.user.tag}!`);
-        await this.send(this.createEmbededReport(true, require('../package.json').version, 'Hello'))
+        const description = `
+        ${require('../package.json').version}
+        Launched with:
+          - Source: ${args.source}
+          - Destination: ${args.destination}
+          - Backup Interval: ${args.interval} days
+          - Number of backup to keep: ${args.nbBackup}
+      `
+        await this.send(this.createEmbededReport(true, description, 'Hello'))
         res()
 
       });
