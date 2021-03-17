@@ -66,7 +66,7 @@ class MyDiscord {
 
   async df() {
     const options = {
-      file: '/',
+      file: args.destination,
       prefixMultiplier: 'GB',
       isDisplayPrefixMultiplier: true,
       precision: 2
