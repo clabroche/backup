@@ -2,6 +2,8 @@ const Discord = require('discord.js');
 const args = require('./args')
 const client = new Discord.Client();
 const axios = require('axios').default;
+const {exec} = require('child_process')
+const df = require('node-df')
 class MyDiscord {
   constructor() {
     this.token = args.discordToken
@@ -15,6 +17,10 @@ class MyDiscord {
       },
       '/HELP': {
         cb: this.help,
+        description: 'Show this help'
+      },
+      '/BACKUP:DF': {
+        cb: this.df,
         description: 'Show this help'
       },
     }
@@ -56,6 +62,26 @@ class MyDiscord {
     console.log('Send to Discord')
     // @ts-ignore
     return client.channels.cache.get(this.channelId).send(msg)
+  }
+
+  async df() {
+    const options = {
+      file: '/',
+      prefixMultiplier: 'GB',
+      isDisplayPrefixMultiplier: true,
+      precision: 2
+    };
+    df(options, (error, response) => {
+      if (error) { throw error; }
+      
+      const description = response.map(disk => {
+        return `
+          ${disk.filesystem}: ${disk.available}
+          `
+      }).join('\n')
+      return this.send(this.createEmbededReport(true, description, 'Space available:'))
+    });
+
   }
   
   
@@ -101,6 +127,15 @@ class MyDiscord {
   }
 } 
 
+async function execPromise (cmd) {
+  return new Promise((res, rej) => {
+    exec(cmd, (err, stdout, stderr) => {
+      if(err || stderr) rej(err)
+      res(stdout)
+    })
+  })
+
+}
 
 module.exports = MyDiscord
 module.exports.discord = new MyDiscord()

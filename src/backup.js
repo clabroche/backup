@@ -14,6 +14,7 @@ module.exports = async() => {
   const lastBackup = await getLastBackup()
   if(lastBackup) {
     console.log('Copy last backup...')
+    await discord.send(discord.createEmbededReport(true, '', 'Copy last backup...'))
     await rsync(['-ah', '--stats', lastBackup + '/', destinationBackup])
   }
   const rsyncArgs = [
@@ -29,23 +30,31 @@ module.exports = async() => {
     destinationBackup
   ]
   console.log('Sync remote...')
-  let rsyncOutput = await rsync(rsyncArgs)
+  let summary = `
+      - Source: ${args.source}
+      - Destination: ${args.destination}
+      - Backup Interval: ${args.interval} days
+      - Number of backup to keep: ${args.nbBackup}
+  `
+  summary += await rsync(rsyncArgs)
+
   await deleteBackupIfEmpty(destinationBackup)
   console.log('Delete all backup...')
   const removedBackups = await deleteOldBackups()
   
-  rsyncOutput += `
+  summary += `
     Removed Backup:
     ${removedBackups.map(folder => '- ' + folder).join('\n')}
   `
-  rsyncOutput += `
+  summary += `
     Backups available: ${await (await getAllBackup()).length}
   `
-  rsyncOutput += `
+  summary += `
     Command: ${rsyncArgs.join(' ')}
   `
-  console.log(rsyncOutput)
-  await discord.send(discord.createEmbededReport(true, rsyncOutput))
+  console.log(summary)
+  await discord.send(discord.createEmbededReport(true, summary))
+  await discord.df()
 }
 
 async function deleteBackupIfEmpty(destinationBackup) {
