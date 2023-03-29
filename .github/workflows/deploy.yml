@@ -11,7 +11,7 @@ jobs:
       uses: actions/checkout@master
 
     - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         pre: echo ::save-state name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
         name: clabroche/docker-registry/backup
